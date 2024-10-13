@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>European Option Pricing</title>
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+   <div class="container">
+       <h1 class="mt-5">European Option Pricing</h1>
+       <form id="optionForm" class="mt-4">
+           <div class="form-group">
+               <label for="S">Stock Price (S)</label>
+               <input type="number" step="0.01" class="form-control" id="S" value="100">
+           </div>
+           <div class="form-group">
+               <label for="K">Strike Price (K)</label>
+               <input type="number" step="0.01" class="form-control" id="K" value="100">
+           </div>
+           <div class="form-group">
+               <label for="T">Time to Expiration (T in years)</label>
+               <input type="number" step="0.01" class="form-control" id="T" value="1">
+           </div>
+           <div class="form-group">
+               <label for="r">Risk-Free Rate (r)</label>
+               <input type="number" step="0.01" class="form-control" id="r" value="0.05">
+           </div>
+           <div class="form-group">
+               <label for="sigma">Volatility (σ)</label>
+               <input type="number" step="0.01" class="form-control" id="sigma" value="0.2">
+           </div>
+           <div class="form-group">
+               <label for="optionType">Option Type</label>
+               <select class="form-control" id="optionType">
+                   <option value="call">Call</option>
+                   <option value="put">Put</option>
+               </select>
+           </div>
+           <button type="button" id="calculateButton" class="btn btn-primary">Calculate</button>
+       </form>
+
+       <h2 class="mt-4">Option Price: <span id="optionPrice"></span></h2>
+       <div id="graph" class="mt-4"></div>
+   </div>
+
+   <script>
+       $(document).ready(function() {
+           $('#calculateButton').click(function() {
+               const data = {
+                   S: $('#S').val(),
+                   K: $('#K').val(),
+                   T: $('#T').val(),
+                   r: $('#r').val(),
+                   sigma: $('#sigma').val(),
+                   optionType: $('#optionType').val()
+               };
+               
+               $.ajax({
+                   type: 'POST',
+                   url: '/calculate',
+                   contentType: 'application/json',
+                   data: JSON.stringify(data),
+                   success: function(response) {
+                       $('#optionPrice').text(response.price.toFixed(2));
+                       Plotly.newPlot('graph', JSON.parse(response.graphJSON).data, JSON.parse(response.graphJSON).layout);
+                   }
+               });
+           });
+       });
+   </script>
+</body>
+</html>
